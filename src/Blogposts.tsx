@@ -17,7 +17,7 @@ const Blogposts = () => {
       return <span>Error: {error.message}</span>
 
     case "success": return <div className="text-center mt-2 flex items-center justify-center">
-        <ul className="group overflow-hidden list-none  w-96 md:w-3/4 justify-center ">
+        <ul className="group  list-none max-w-screen-sm max-w-full justify-center ">
           {data.data != undefined && data.data.length > 0 ?
               data.data.map((post, key) => <Link key={key} to={post.id!.toString()}>
                 <li className="border-black dark:bg-gradient-to-r dark:transition-all dark:ease-in-out dark:delay-150
