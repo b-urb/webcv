@@ -18,7 +18,19 @@ const importPlugin = require("eslint-plugin-import");
 module.exports = [
   // Global ignores
   {
-    ignores: ["deploy/**", "node_modules/**", "out/**", ".next/**", ".storybook/**", "eslint.config.js"],
+    ignores: [
+      "deploy/**",
+      "node_modules/**",
+      "out/**",
+      ".next/**",
+      ".storybook/**",
+      "eslint.config.js",
+      "next.config.js",
+      "postcss.config.js",
+      "tailwind.config.js",
+      "jest.config.js",
+      "*.config.js",
+    ],
   },
 
   // Base configuration for all files
