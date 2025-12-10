@@ -8,7 +8,7 @@ import MetaTag from "./MetaTag";
 interface BlogpostCardProps {
   name: string;
   thumbnail?: string;
-  // eslint-disable-next-line react/no-unused-prop-types
+
   abstract: string;
   date: string;
   tags: Array<string>;

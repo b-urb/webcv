@@ -44,7 +44,12 @@ const Footer = () => {
             key={social.name}
             className="m-1 hover:animate-pulse hover:cursor-pointer sm:m-3"
           >
-            <a aria-label={social.name} href={social.url} target="_blank">
+            <a
+              aria-label={social.name}
+              href={social.url}
+              target="_blank"
+              rel="noreferrer"
+            >
               <FontAwesomeIcon icon={social.icon} />
             </a>
           </li>
