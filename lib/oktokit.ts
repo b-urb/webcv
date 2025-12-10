@@ -12,7 +12,7 @@ async function getRepoLanguageStats(
       repo,
     });
     return response.data;
-  } catch (error) {
+  } catch {
     return null;
   }
 }

@@ -6,8 +6,7 @@ const prettierPlugin = require("eslint-plugin-prettier");
 const prettierConfig = require("eslint-config-prettier");
 const unusedImports = require("eslint-plugin-unused-imports");
 const simpleImportSort = require("eslint-plugin-simple-import-sort");
-const jest = require("eslint-plugin-jest");
-const jestFormatting = require("eslint-plugin-jest-formatting");
+const vitest = require("eslint-plugin-vitest");
 const testingLibrary = require("eslint-plugin-testing-library");
 const jestDom = require("eslint-plugin-jest-dom");
 const reactPlugin = require("eslint-plugin-react");
@@ -18,7 +17,19 @@ const importPlugin = require("eslint-plugin-import");
 module.exports = [
   // Global ignores
   {
-    ignores: ["deploy/**", "node_modules/**", "out/**", ".next/**", ".storybook/**", "eslint.config.js"],
+    ignores: [
+      "deploy/**",
+      "node_modules/**",
+      "out/**",
+      ".next/**",
+      ".storybook/**",
+      "eslint.config.js",
+      "next.config.js",
+      "postcss.config.js",
+      "tailwind.config.js",
+      "jest.config.js",
+      "*.config.js",
+    ],
   },
 
   // Base configuration for all files
@@ -140,6 +151,9 @@ module.exports = [
           jsx: true,
         },
       },
+      globals: {
+        ...globals.node,
+      },
     },
     rules: {
       ...prettierConfig.rules,
@@ -153,12 +167,24 @@ module.exports = [
     },
   },
 
+  // Configuration for browser scripts
+  {
+    files: ["public/**/*.js"],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+      },
+    },
+    rules: {
+      "no-undef": "off",
+    },
+  },
+
   // Configuration for test files
   {
     files: ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"],
     plugins: {
-      jest: jest,
-      "jest-formatting": jestFormatting,
+      vitest: vitest,
       "testing-library": testingLibrary,
       "jest-dom": jestDom,
     },
@@ -166,14 +192,30 @@ module.exports = [
       globals: {
         ...globals.browser,
         ...globals.node,
-        ...globals.jest,
+        describe: "readonly",
+        it: "readonly",
+        expect: "readonly",
+        vi: "readonly",
+        beforeEach: "readonly",
+        afterEach: "readonly",
+        beforeAll: "readonly",
+        afterAll: "readonly",
       },
     },
     rules: {
-      ...jest.configs.recommended.rules,
-      ...jestFormatting.configs.recommended.rules,
+      ...vitest.configs.recommended.rules,
       ...testingLibrary.configs.react.rules,
       ...jestDom.configs.recommended.rules,
+      "vitest/expect-expect": "warn",
+      "vitest/no-disabled-tests": "warn",
+      "vitest/no-focused-tests": "error",
+      "vitest/valid-expect": "error",
+      "import/no-extraneous-dependencies": [
+        "error",
+        {
+          devDependencies: true,
+        },
+      ],
     },
   },
 
@@ -187,6 +229,62 @@ module.exports = [
           devDependencies: true,
         },
       ],
+    },
+  },
+
+  // Configuration for TypeScript declaration files
+  {
+    files: ["**/*.d.ts"],
+    rules: {
+      "@typescript-eslint/triple-slash-reference": "off",
+      "import/no-extraneous-dependencies": "off",
+    },
+  },
+
+  // Configuration for Vitest config files
+  {
+    files: ["vitest.config.ts"],
+    rules: {
+      "import/no-extraneous-dependencies": [
+        "error",
+        {
+          devDependencies: true,
+        },
+      ],
+    },
+  },
+
+  // Configuration for test setup files
+  {
+    files: ["vitest.setup.ts", "**/__mocks__/**"],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+    rules: {
+      "import/no-extraneous-dependencies": [
+        "error",
+        {
+          devDependencies: true,
+        },
+      ],
+      "@typescript-eslint/no-require-imports": "off",
+      "no-undef": "off",
+    },
+  },
+
+  // Configuration for E2E tests with Playwright
+  {
+    files: ["tests/e2e/**/*.spec.ts", "tests/e2e/**/*.test.ts"],
+    rules: {
+      "import/no-extraneous-dependencies": [
+        "error",
+        {
+          devDependencies: true,
+        },
+      ],
+      "testing-library/prefer-screen-queries": "off",
     },
   },
 ];

@@ -19,7 +19,7 @@ import ProjectDescription from "../../../components/ProjectDescription";
 // }
 
 // FIXME: Add generate metadata
-const ProjectView = ({ params }: any) => {
+const ProjectView = ({ params }: { params: { id: string } }) => {
   return (
     <div className="flex w-full flex-col items-center">
       <div className="flex w-5/6 items-center justify-items-center gap-x-3">

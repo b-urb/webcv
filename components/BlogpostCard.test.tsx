@@ -1,5 +1,6 @@
 import { screen } from "@testing-library/react";
 import { render } from "@testing-library/react";
+import { vi } from "vitest";
 
 import BlogpostCard from "./BlogpostCard";
 
@@ -13,7 +14,7 @@ describe("BlogpostCard component", () => {
   };
 
   it("renders correctly", () => {
-    jest.spyOn(console, "error").mockImplementation();
+    vi.spyOn(console, "error").mockImplementation(() => {});
     render(<BlogpostCard {...mockProps} />);
     expect(screen.getByText(/test blogpost/i)).toBeInTheDocument();
     expect(screen.getByText(/tag1/i)).toBeInTheDocument();

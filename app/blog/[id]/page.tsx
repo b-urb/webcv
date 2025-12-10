@@ -29,7 +29,7 @@ async function getPost(postId: string) {
 //     description: "test" //blog?.description
 //   }
 // }
-const BlogpostView = async ({ params }: any) => {
+const BlogpostView = async ({ params }: { params: { id: string } }) => {
   const post: Blogpost = await getPost(params.id);
   return post !== undefined ? (
     <div className="flex flex-col items-center">
