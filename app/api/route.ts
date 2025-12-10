@@ -38,7 +38,7 @@ async function handleRequest(req: NextRequest) {
       }
     }
     return new Response(JSON.stringify({ revalidated: true }), { status: 200 });
-  } catch (err) {
+  } catch {
     return new Response("Error revalidation", { status: 500 });
   }
 }
