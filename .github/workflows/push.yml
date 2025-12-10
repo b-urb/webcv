@@ -13,7 +13,9 @@ env:
   CI: true
 
 permissions:
-  contents: read
+  contents: write
+  issues: write
+  pull-requests: write
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -73,21 +75,26 @@ jobs:
             public/
             .next/static/
 
-  build-docker:
+  build-docker-dev:
+    name: Build and Deploy Docker (Development)
     needs: build
     runs-on: ubuntu-latest
-    if: ${{ github.ref }} != 'master' && ${{ github.ref }} != 'development'
-    env:
-      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+    if: github.ref == 'refs/heads/development'
+    environment: development
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+
       - name: Download build artifact
         uses: actions/download-artifact@v6
         with:
           name: production-artifacts
 
-      - name: Set up Docker Build
+      - name: Set short SHA
+        id: vars
+        run: echo "short_sha=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Registry
@@ -95,35 +102,128 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/webcv:${{ steps.vars.outputs.short_sha }}
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/webcv:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/webcv:buildcache,mode=max
+
+      - name: Install Pulumi dependencies
+        run: npm install
+        working-directory: deploy
+
+      - name: Decode kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
+        shell: bash
+
+      - name: Deploy to dev with Pulumi
+        uses: pulumi/actions@v6
+        with:
+          command: up
+          stack-name: dev
+          work-dir: deploy
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          registryImage: ${{ secrets.DOCKERHUB_USERNAME }}/webcv
+          imageTag: ${{ steps.vars.outputs.short_sha }}
+          GHCR_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          GHCR_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          GHCR_REGISTRY: docker.io
+
+  build-docker-master:
+    name: Build Docker and Release (Master)
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: production-artifacts
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install semantic-release
+        run: npm install -g semantic-release @saithodev/semantic-release-backmerge @semantic-release/github @semantic-release/exec
+
+      - name: Run semantic-release
+        id: semantic
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+        run: |
+          npx semantic-release --debug
+          echo "version=$(cat VERSION.txt 2>/dev/null || echo '')" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        if: steps.semantic.outputs.version != ''
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Registry
+        if: steps.semantic.outputs.version != ''
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image with version tag
+        if: steps.semantic.outputs.version != ''
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/webcv:v${{ steps.semantic.outputs.version }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/webcv:latest
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/webcv:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/webcv:buildcache,mode=max
+
+  build-docker-feature:
+    name: Build Docker (Feature Branch)
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref != 'refs/heads/master' && github.ref != 'refs/heads/development'
+    env:
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: production-artifacts
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Registry
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/webcv:${{ env.BRANCH_NAME }}
           platforms: linux/amd64,linux/arm64
-
-  release:
-    needs: build-docker
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      issues: write
-      pull-requests: write
-    if: ${{ github.ref }} == 'master' || ${{ github.ref }} == 'development'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-      - name: Install dependencies
-        run: npm install -g semantic-release @saithodev/semantic-release-backmerge @semantic-release/github @semantic-release/exec
-      - name: Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT }}
-        run: npx semantic-release --debug
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/webcv:buildcache
