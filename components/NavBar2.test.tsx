@@ -1,11 +1,12 @@
 import { fireEvent, screen } from "@testing-library/react";
 import { render } from "@testing-library/react";
 import React from "react";
+import { vi } from "vitest";
 
 import NavBar2 from "./NavBar2";
 
 // Mock the entire next/navigation module
-jest.mock("next/navigation", () => ({
+vi.mock("next/navigation", () => ({
   usePathname: () => "/",
 }));
 

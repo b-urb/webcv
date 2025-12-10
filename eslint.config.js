@@ -6,8 +6,7 @@ const prettierPlugin = require("eslint-plugin-prettier");
 const prettierConfig = require("eslint-config-prettier");
 const unusedImports = require("eslint-plugin-unused-imports");
 const simpleImportSort = require("eslint-plugin-simple-import-sort");
-const jest = require("eslint-plugin-jest");
-const jestFormatting = require("eslint-plugin-jest-formatting");
+const vitest = require("eslint-plugin-vitest");
 const testingLibrary = require("eslint-plugin-testing-library");
 const jestDom = require("eslint-plugin-jest-dom");
 const reactPlugin = require("eslint-plugin-react");
@@ -185,8 +184,7 @@ module.exports = [
   {
     files: ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"],
     plugins: {
-      jest: jest,
-      "jest-formatting": jestFormatting,
+      vitest: vitest,
       "testing-library": testingLibrary,
       "jest-dom": jestDom,
     },
@@ -194,14 +192,30 @@ module.exports = [
       globals: {
         ...globals.browser,
         ...globals.node,
-        ...globals.jest,
+        describe: "readonly",
+        it: "readonly",
+        expect: "readonly",
+        vi: "readonly",
+        beforeEach: "readonly",
+        afterEach: "readonly",
+        beforeAll: "readonly",
+        afterAll: "readonly",
       },
     },
     rules: {
-      ...jest.configs.recommended.rules,
-      ...jestFormatting.configs.recommended.rules,
+      ...vitest.configs.recommended.rules,
       ...testingLibrary.configs.react.rules,
       ...jestDom.configs.recommended.rules,
+      "vitest/expect-expect": "warn",
+      "vitest/no-disabled-tests": "warn",
+      "vitest/no-focused-tests": "error",
+      "vitest/valid-expect": "error",
+      "import/no-extraneous-dependencies": [
+        "error",
+        {
+          devDependencies: true,
+        },
+      ],
     },
   },
 
@@ -218,12 +232,25 @@ module.exports = [
     },
   },
 
+  // Configuration for Vitest config files
+  {
+    files: ["vitest.config.ts"],
+    rules: {
+      "import/no-extraneous-dependencies": [
+        "error",
+        {
+          devDependencies: true,
+        },
+      ],
+    },
+  },
+
   // Configuration for test setup files
   {
-    files: ["jest.setup.ts", "**/__mocks__/**"],
+    files: ["vitest.setup.ts", "**/__mocks__/**"],
     languageOptions: {
       globals: {
-        ...globals.jest,
+        ...globals.node,
       },
     },
     rules: {
@@ -233,6 +260,7 @@ module.exports = [
           devDependencies: true,
         },
       ],
+      "@typescript-eslint/no-require-imports": "off",
       "no-undef": "off",
     },
   },
