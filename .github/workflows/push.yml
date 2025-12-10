@@ -18,7 +18,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     environment: development
-    container: node:22
+    container: node:24
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -120,7 +120,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
       - name: Install dependencies
         run: npm install -g semantic-release @saithodev/semantic-release-backmerge @semantic-release/github @semantic-release/exec
       - name: Release
