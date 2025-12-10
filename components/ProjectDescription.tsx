@@ -27,7 +27,9 @@ const ProjectDescription = async (props: { id: string }) => {
        xl:prose-p:text-xl"
       >
         <h2>{project.name!}</h2>
-        <BlogpostMarkdown markdown={project.translations?.[0].description!} />
+        <BlogpostMarkdown
+          markdown={project.translations?.[0]?.description ?? ""}
+        />
       </article>
       <Suspense>
         <ProjectStats url={project.repository_url} />

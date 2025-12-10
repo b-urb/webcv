@@ -16,8 +16,7 @@ const DirectusImage = ({
 }: {
   src: string;
   alt: string;
-  [x: string]: any;
-}) => {
+} & Omit<React.ComponentProps<typeof Image>, "src" | "alt" | "loader">) => {
   return (
     <Image
       src={src}

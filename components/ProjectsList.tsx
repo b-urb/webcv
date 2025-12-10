@@ -27,8 +27,8 @@ const ProjectsList: React.FC<{
             <Suspense key={content.id}>
               <ProjectsCard
                 id={content.id}
-                name={content.name!}
-                content={content.translations?.[0]?.description!}
+                name={content.name ?? ""}
+                content={content.translations?.[0]?.description ?? ""}
                 associated_skills={content.associated_skills}
               />
             </Suspense>

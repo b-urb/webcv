@@ -152,6 +152,9 @@ module.exports = [
           jsx: true,
         },
       },
+      globals: {
+        ...globals.node,
+      },
     },
     rules: {
       ...prettierConfig.rules,
@@ -162,6 +165,19 @@ module.exports = [
           endOfLine: "auto",
         },
       ],
+    },
+  },
+
+  // Configuration for browser scripts
+  {
+    files: ["public/**/*.js"],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+      },
+    },
+    rules: {
+      "no-undef": "off",
     },
   },
 
@@ -199,6 +215,39 @@ module.exports = [
           devDependencies: true,
         },
       ],
+    },
+  },
+
+  // Configuration for test setup files
+  {
+    files: ["jest.setup.ts", "**/__mocks__/**"],
+    languageOptions: {
+      globals: {
+        ...globals.jest,
+      },
+    },
+    rules: {
+      "import/no-extraneous-dependencies": [
+        "error",
+        {
+          devDependencies: true,
+        },
+      ],
+      "no-undef": "off",
+    },
+  },
+
+  // Configuration for E2E tests with Playwright
+  {
+    files: ["tests/e2e/**/*.spec.ts", "tests/e2e/**/*.test.ts"],
+    rules: {
+      "import/no-extraneous-dependencies": [
+        "error",
+        {
+          devDependencies: true,
+        },
+      ],
+      "testing-library/prefer-screen-queries": "off",
     },
   },
 ];
