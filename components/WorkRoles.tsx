@@ -27,11 +27,13 @@ const WorkRolesView = (props: { roles: WorkRoles[] }) => {
                 {elem.enddate ? formatDate(elem.enddate) : "now"}
               </h4>
             </div>
-            <Markdown className="prose prose-invert text-xs lg:text-sm 2xl:text-lg ">
-              {elem.translations
-                ? elem.translations[0].description
-                : "no description"}
-            </Markdown>
+            <div className="prose prose-invert text-xs lg:text-sm 2xl:text-lg ">
+              <Markdown>
+                {elem.translations
+                  ? elem.translations[0].description
+                  : "no description"}
+              </Markdown>
+            </div>
           </div>
         ))}
     </div>

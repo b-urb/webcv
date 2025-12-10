@@ -12,7 +12,7 @@ const ProjectsCard = async (props: {
   content: string;
   associated_skills: ProjectsSkills[] | null;
 }) => {
-  const ids = props.associated_skills?.map((it) => Number(it.skills_id))!;
+  const ids = props.associated_skills?.map((it) => Number(it.skills_id)) ?? [];
   const skills = await getSkillsById(ids);
   return (
     <Link href={`projects/${props.id!.toString()}`}>
@@ -21,11 +21,11 @@ const ProjectsCard = async (props: {
           <div className="row-span-auto">
             <h2 className="font-roboto text-xl md:text-2xl">{props.name}</h2>
           </div>
-          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
+          {}
           <div className="row-auto h-44 cursor-default overflow-hidden font-barlow text-base prose-a:underline md:h-36">
-            <Markdown className="xl:text-md line-clamp-6 text-sm">
-              {props.content}
-            </Markdown>
+            <div className="xl:text-md line-clamp-6 text-sm">
+              <Markdown>{props.content}</Markdown>
+            </div>
           </div>
           <div className="row-auto flex flex-wrap justify-start justify-items-start gap-2 pt-2">
             {skills !== undefined
