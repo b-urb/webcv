@@ -232,6 +232,15 @@ module.exports = [
     },
   },
 
+  // Configuration for TypeScript declaration files
+  {
+    files: ["**/*.d.ts"],
+    rules: {
+      "@typescript-eslint/triple-slash-reference": "off",
+      "import/no-extraneous-dependencies": "off",
+    },
+  },
+
   // Configuration for Vitest config files
   {
     files: ["vitest.config.ts"],
