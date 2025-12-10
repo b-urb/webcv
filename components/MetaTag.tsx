@@ -1,4 +1,4 @@
-const tagIconMapping: Object = {
+const tagIconMapping: object = {
   sql: "azuresqldatabase",
   cpp: "cplusplus",
 };
@@ -7,7 +7,7 @@ const MetaTag = (props: { tag: string; text: string }) => {
   const findIconOrNull = () => {
     if (!(props.tag.toLowerCase() in tagIconMapping))
       return `devicon-${props.tag.toLowerCase()}-plain`;
-    return `devicon-${tagIconMapping[props.tag.toLowerCase() as keyof Object]}-plain`;
+    return `devicon-${tagIconMapping[props.tag.toLowerCase() as keyof object]}-plain`;
   };
 
   return (
