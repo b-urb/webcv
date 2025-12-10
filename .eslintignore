@@ -1,4 +1,0 @@
-deploy
-node_modules
-out
-!.storybook

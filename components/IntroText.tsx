@@ -6,7 +6,7 @@ const IntroText = async () => {
   const data = (await getIntrotext()) as Introtext;
 
   return (
-    <ReactMarkdown
+    <div
       className="dark:prose-p:text-dark-4
      dark:prose-headings:text-dark-4
       prose
@@ -15,8 +15,8 @@ const IntroText = async () => {
        md:text-2xl
        prose-ul:md:w-96"
     >
-      {data.introtext}
-    </ReactMarkdown>
+      <ReactMarkdown>{data.introtext}</ReactMarkdown>
+    </div>
   );
 };
 
