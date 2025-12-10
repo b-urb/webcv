@@ -26,7 +26,7 @@
     "@fortawesome/free-solid-svg-icons": "^7.0.0",
     "@fortawesome/react-fontawesome": "^3.0.0",
     "@mapbox/rehype-highlight-code-block": "^1.0.0",
-    "@octokit/rest": "^21.0.0",
+    "@octokit/rest": "^22.0.0",
     "@tailwindcss/typography": "^0.5.7",
     "devicon": "^2.15.1",
     "eslint-plugin-jest": "^28.0.0",
