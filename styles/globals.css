@@ -1,7 +1,31 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
+@theme {
+  /* Custom colors */
+  --color-text: #fafafa;
+  --color-background: #050505;
+  --color-primary: #66a923;
+  --color-secondary: #082b2b;
+  --color-accent: #b280e5;
+
+  /* Custom fonts */
+  --font-family-barlow: var(--font-barlow);
+  --font-family-roboto: var(--font-roboto);
+
+  /* Custom screens */
+  --breakpoint-3xl: 1840px;
+  --breakpoint-4xl: 2100px;
+
+  /* Font weights */
+  --font-weight-normal: 400;
+  --font-weight-bold: 700;
+
+  /* Background images */
+  --background-image-moon: url('../public/moon.png');
+
+  /* Animations */
+  --animate-slide-in-right: slide-in-right 1s ease-out forwards;
+}
 
 body {
   margin: 0;
@@ -12,16 +36,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
   height: 100vh;
 }
-@layer base {
-  /* roboto-condensed-700 - latin */
-}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
 
 @keyframes slide-in-right {
-  0%, 20% { /* Adjust this based on your delays */
+  0%, 20% {
     transform: translateX(100%);
     opacity: 0;
   }
