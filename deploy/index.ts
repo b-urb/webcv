@@ -59,7 +59,7 @@ const isrSecret = new Secret("isr-token-secret", {
 const externalSecret = new apiextensions.CustomResource(
   "external-isr-token",
   {
-    apiVersion: "external-secrets.io/v1beta1",
+    apiVersion: "external-secrets.io/v1",
     kind: "ExternalSecret",
     metadata: {
       name: "external-isr-token",

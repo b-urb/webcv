@@ -2,18 +2,16 @@ name: CI
 
 on:
   push:
-    branches:
-      - '*'
-
-#  pull_request:
-#    branches:
-#      - '*'
+    branches-ignore:
+      - main
+      - master
 
 env:
   CI: true
 
 permissions:
   contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -57,7 +55,6 @@ jobs:
       - name: Install Playwright (used for Storybook and E2E tests)
         run: npx playwright install --with-deps
 
-
       - name: Run E2E tests
         run: npx percy exec -- npm run test:e2e
         env:
@@ -68,6 +65,8 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: production-artifacts
+          retention-days: 3
+          include-hidden-files: true
           path: |
             .next/standalone/
             public/
@@ -76,16 +75,34 @@ jobs:
   build-docker:
     needs: build
     runs-on: ubuntu-latest
-    if: ${{ github.ref }} != 'master' && ${{ github.ref }} != 'development'
+    permissions:
+      contents: read
+      packages: write
     env:
-      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+      BRANCH_NAME: ${{ github.ref_name }}
+    outputs:
+      image_tag: ${{ steps.image-tag.outputs.value }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+
       - name: Download build artifact
         uses: actions/download-artifact@v6
         with:
           name: production-artifacts
+
+      - name: Derive image tag
+        id: image-tag
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          if [ "${{ github.ref }}" = "refs/heads/development" ]; then
+            TAG="$SHORT_SHA"
+          else
+            SAFE_BRANCH=$(echo "${BRANCH_NAME}" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9_.-' '-')
+            TAG="${SAFE_BRANCH}-${SHORT_SHA}"
+          fi
+          echo "IMAGE_TAG=$TAG" >> $GITHUB_ENV
+          echo "value=$TAG" >> $GITHUB_OUTPUT
 
       - name: Set up Docker Build
         uses: docker/setup-buildx-action@v3
@@ -95,35 +112,48 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push
+
+      - name: Build and push image
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/webcv:${{ env.BRANCH_NAME }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/webcv:${{ env.IMAGE_TAG }}
           platforms: linux/amd64,linux/arm64
 
-  release:
+  deploy-development:
     needs: build-docker
     runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/development' }}
     permissions:
-      contents: write
-      issues: write
-      pull-requests: write
-    if: ${{ github.ref }} == 'master' || ${{ github.ref }} == 'development'
+      contents: read
+      packages: write
+    env:
+      IMAGE_TAG: ${{ needs.build-docker.outputs.image_tag }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+
+      - name: Install Pulumi dependencies
+        run: npm install
+        working-directory: deploy
+
+      - name: Decode kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
+        shell: bash
+
+      - name: Deploy to development with Pulumi
+        uses: pulumi/actions@v6
         with:
-          fetch-depth: 0
-          persist-credentials: false
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-      - name: Install dependencies
-        run: npm install -g semantic-release @saithodev/semantic-release-backmerge @semantic-release/github @semantic-release/exec
-      - name: Release
+          command: up
+          stack-name: dev
+          work-dir: deploy
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT }}
-        run: npx semantic-release --debug
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          registryImage: ${{ secrets.DOCKERHUB_USERNAME }}/webcv
+          imageTag: ${{ env.IMAGE_TAG }}
+          GHCR_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          GHCR_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          GHCR_REGISTRY: docker.io
