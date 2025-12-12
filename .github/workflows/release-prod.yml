@@ -37,7 +37,7 @@ jobs:
 
 
       - name: Archive production artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           include-hidden-files: 'true'
           name: production-artifacts
@@ -55,7 +55,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
       - name: Download build artifact
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: production-artifacts
 
