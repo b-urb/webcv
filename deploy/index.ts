@@ -20,8 +20,8 @@ const projectName = getProject();
 const resourceName = stackName + "-" + projectName;
 const k8sNamespace = config.get("namespace") || projectName;
 
-const cmsToken = config.getSecret("cms-token");
-const isrToken = config.getSecret("isr-token");
+const cmsToken = config.requireSecret("cms-token");
+const isrToken = config.requireSecret("isr-token");
 
 const appLabels = {
   name: resourceName,
