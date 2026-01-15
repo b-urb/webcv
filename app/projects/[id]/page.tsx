@@ -4,6 +4,14 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import ProjectDescription from "../../../components/ProjectDescription";
+import { allProjects } from "../../../lib/projects";
+
+export async function generateStaticParams() {
+  const projects = await allProjects();
+  return projects.map((project) => ({
+    id: project.id?.toString() ?? "",
+  }));
+}
 
 // export async function generateMetadata(
 //     id: string,
@@ -19,7 +27,8 @@ import ProjectDescription from "../../../components/ProjectDescription";
 // }
 
 // FIXME: Add generate metadata
-const ProjectView = ({ params }: { params: { id: string } }) => {
+const ProjectView = async ({ params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params;
   return (
     <div className="flex w-full flex-col items-center">
       <div className="flex w-5/6 items-center justify-items-center gap-x-3">
@@ -37,7 +46,7 @@ const ProjectView = ({ params }: { params: { id: string } }) => {
         </h2>
       </div>
       <Suspense>
-        <ProjectDescription id={params.id} />
+        <ProjectDescription id={id} />
       </Suspense>
     </div>
   );
