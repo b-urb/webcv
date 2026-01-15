@@ -9,10 +9,18 @@ async function getProject(projectId: string) {
   // Call an external API endpoint to get posts
   // By returning { props: { posts } }, the Blog component
   // will receive `posts` as a prop at build time
-  return getProjectById(projectId);
+  if (!projectId || projectId === "undefined") {
+    return undefined;
+  }
+  try {
+    return await getProjectById(projectId);
+  } catch (error) {
+    console.error(`Error fetching project ${projectId}:`, error);
+    return undefined;
+  }
 }
 const ProjectDescription = async (props: { id: string }) => {
-  const project: Project = await getProject(props.id);
+  const project: Project | undefined = await getProject(props.id);
   return project !== undefined ? (
     <div className="flex w-5/6 flex-col items-center gap-y-4">
       <article

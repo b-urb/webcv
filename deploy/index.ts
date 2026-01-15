@@ -50,43 +50,26 @@ const secret = createGitlabSecret(
 // Create a new Deployment with a user-specified number of replicas
 // Assume we have a configured Kubernetes provider
 
+// Create Kubernetes secrets from Pulumi config
 const isrSecret = new Secret("isr-token-secret", {
   metadata: {
     name: "isr-token-secret",
     namespace: webServerNs.metadata.name,
   },
-});
-const externalSecret = new apiextensions.CustomResource(
-  "external-isr-token",
-  {
-    apiVersion: "external-secrets.io/v1",
-    kind: "ExternalSecret",
-    metadata: {
-      name: "external-isr-token",
-      namespace: webServerNs.metadata.name,
-    },
-    spec: {
-      refreshInterval: "240h",
-      secretStoreRef: {
-        name: "aws-secret-store", // This should be the name of your SecretStore
-        kind: "ClusterSecretStore", // or SecretStore if not cluster-wide
-      },
-      target: {
-        name: isrSecret.metadata.name, // The name of the Kubernetes secret to be created
-        creationPolicy: "Owner",
-      },
-      data: [
-        {
-          secretKey: "ISR_TOKEN",
-          remoteRef: {
-            key: "ISR_TOKEN",
-          },
-        },
-      ],
-    },
+  stringData: {
+    ISR_TOKEN: isrToken,
   },
-  { dependsOn: [isrSecret] }
-);
+});
+
+const directusSecret = new Secret("directus-token-secret", {
+  metadata: {
+    name: "directus-token-secret",
+    namespace: webServerNs.metadata.name,
+  },
+  stringData: {
+    DIRECTUS_TOKEN: cmsToken,
+  },
+});
 
 const deployment = new Deployment(
   resourceName,
@@ -139,7 +122,12 @@ const deployment = new Deployment(
                 },
                 {
                   name: "CI_DIRECTUS_TOKEN",
-                  value: cmsToken,
+                  valueFrom: {
+                    secretKeyRef: {
+                      name: directusSecret.metadata.name,
+                      key: "DIRECTUS_TOKEN",
+                    },
+                  },
                 },
               ],
               ports: [
@@ -157,7 +145,7 @@ const deployment = new Deployment(
       },
     },
   },
-  { dependsOn: [externalSecret] }
+  { dependsOn: [isrSecret, directusSecret] }
 );
 
 // Expose the Deployment as a Kubernetes Service

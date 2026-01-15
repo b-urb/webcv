@@ -1,11 +1,20 @@
 import ProjectsList from "../../../components/ProjectsList";
-import { getSkillAssociatedProjects } from "../../../lib/skills";
+import type { Skill } from "../../../lib/directus";
+import { allSkills, getSkillAssociatedProjects } from "../../../lib/skills";
 
-const SkillDetail = async ({ params }: { params: { id: string } }) => {
+export async function generateStaticParams() {
+  const skills = await allSkills();
+  return skills.map((skill: Skill) => ({
+    id: skill.id?.toString() ?? "",
+  }));
+}
+
+const SkillDetail = async ({ params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params;
   return (
     <div className="flex w-full flex-col items-center">
       <h2>Related Projects</h2>
-      <ProjectsList loader={() => getSkillAssociatedProjects(params.id)} />
+      <ProjectsList loader={() => getSkillAssociatedProjects(id)} />
     </div>
   );
 };

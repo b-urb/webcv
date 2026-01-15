@@ -4,7 +4,7 @@ import React from "react";
 
 import MetaTag from "./MetaTag";
 
-const BlogMeta = (props: { tags: string[]; date: string }) => {
+const BlogMeta = (props: { tags: string[] | null; date: string }) => {
   const dateOptions: Intl.DateTimeFormatOptions = {
     year: "numeric",
     month: "long",
@@ -24,7 +24,7 @@ const BlogMeta = (props: { tags: string[]; date: string }) => {
         icon={faTags}
       />
       <div className="col-span-5 flex flex-wrap justify-start justify-items-start gap-2 pt-2">
-        {props.tags.map(
+        {props.tags?.map(
           (tag) => tag && <MetaTag key={tag} tag={tag} text={tag} />
         )}
       </div>

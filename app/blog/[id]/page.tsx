@@ -5,15 +5,30 @@ import Link from "next/link";
 import BlogMeta from "../../../components/BlogMeta";
 import { BlogpostMarkdown } from "../../../components/BlogpostMarkdown";
 import DirectusImage from "../../../components/DirectusImage";
+import { allBlogposts, getPostById } from "../../../lib/blogPosts";
 import type { Blogpost } from "../../../lib/directus";
-import { getPostById } from "../../../lib/directus";
+
+export async function generateStaticParams() {
+  const posts = await allBlogposts();
+  return posts.map((post: Blogpost) => ({
+    id: post.id?.toString() ?? "",
+  }));
+}
 
 // FIXME: Add metadata generation
 async function getPost(postId: string) {
   // Call an external API endpoint to get posts
   // By returning { props: { posts } }, the Blog component
   // will receive `posts` as a prop at build time
-  return getPostById(postId);
+  if (!postId || postId === "undefined") {
+    return undefined;
+  }
+  try {
+    return await getPostById(postId);
+  } catch (error) {
+    console.error(`Error fetching blog post ${postId}:`, error);
+    return undefined;
+  }
 }
 
 // export async function generateMetadata(
@@ -29,8 +44,13 @@ async function getPost(postId: string) {
 //     description: "test" //blog?.description
 //   }
 // }
-const BlogpostView = async ({ params }: { params: { id: string } }) => {
-  const post: Blogpost = await getPost(params.id);
+const BlogpostView = async ({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) => {
+  const { id } = await params;
+  const post: Blogpost | undefined = await getPost(id);
   return post !== undefined ? (
     <div className="flex flex-col items-center">
       <div className="mx-4 flex w-[90vw] flex-row justify-between">
