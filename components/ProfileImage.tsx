@@ -18,6 +18,7 @@ const ProfileImage = () => {
         loader={directusLoader}
         sizes="(max-width: 769px) 30vw, (max-width: 1200px) 50vw"
         fill
+        className="object-cover"
       />
     </div>
   );
