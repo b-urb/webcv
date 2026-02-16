@@ -8,7 +8,7 @@ const filterProjects = (elem: Project, category: string | undefined) => {
   if (!category) {
     return true;
   }
-  return category === elem.translations?.[0].category;
+  return category === elem.translations?.[0]?.category;
 };
 const ProjectsList: React.FC<{
   category?: string;
