@@ -28,8 +28,8 @@ async function handleRequest(req: NextRequest) {
     const data = await req.json();
     if (data !== undefined) {
       if (
-        data.operation.contains("create") ||
-        data.operation.contains("delete")
+        data.operation.includes("create") ||
+        data.operation.includes("delete")
       ) {
         revalidatePath(`/${data.collection}/`);
       } else {
