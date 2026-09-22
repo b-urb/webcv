@@ -274,6 +274,28 @@ module.exports = [
     },
   },
 
+  // Build-time Node scripts: they run under node, not in the browser or the
+  // Next runtime, so the browser-global assumptions do not apply.
+  {
+    files: ["scripts/**/*.mjs", "scripts/**/*.cjs", "lib/*.cjs"],
+    languageOptions: {
+      globals: {
+        process: "readonly",
+        console: "readonly",
+        Buffer: "readonly",
+        fetch: "readonly",
+        URL: "readonly",
+        module: "writable",
+        require: "readonly",
+        __dirname: "readonly",
+      },
+    },
+    rules: {
+      "no-undef": "off",
+      "no-console": "off",
+    },
+  },
+
   // Configuration for E2E tests with Playwright
   {
     files: ["tests/e2e/**/*.spec.ts", "tests/e2e/**/*.test.ts"],

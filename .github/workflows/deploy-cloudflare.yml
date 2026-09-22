@@ -1,9 +1,14 @@
-name: Deploy Cloudflare Worker
+name: Deploy Cloudflare site
 on:
   workflow_dispatch:
   push:
     branches:
       - master
+  # Directus dispatches this on a content change, which is what replaces the
+  # old ISR revalidation webhook: the site is a static export now, so new
+  # content reaches burbn.de by being rebuilt rather than by being fetched.
+  repository_dispatch:
+    types: [directus-content-changed]
 env:
   CI: true
 
@@ -20,19 +25,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
+      # An editor saving three fields in a row should produce one build, not
+      # three. cancel-in-progress above turns the overlap into a single run.
+      - name: Debounce
+        if: github.event_name == 'repository_dispatch'
+        run: sleep 180
+
       - name: Install dependencies
         run: npm ci
 
-      - name: Build Worker (OpenNext)
-        run: npx opennextjs-cloudflare build
+      - name: Build static site
+        run: npm run build:cloudflare
         env:
           DIRECTUS_TOKEN: ${{ secrets.CI_DIRECTUS_TOKEN }}
-          ISR_TOKEN: ${{ secrets.CI_ISR_TOKEN }}
           CI_DIRECTUS_TOKEN: ${{ secrets.CI_DIRECTUS_TOKEN }}
-          CI_ISR_TOKEN: ${{ secrets.CI_ISR_TOKEN }}
           ANALYTICS_ID: ${{ secrets.ANALYTICS_ID }}
 
-      - name: Deploy Worker
+      - name: Deploy to Cloudflare
         run: npx wrangler deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

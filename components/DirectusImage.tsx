@@ -1,13 +1,12 @@
 "use client";
 
-import type { ImageLoaderProps } from "next/image";
 import Image from "next/image";
 import React from "react";
 
-// FIXME: Check conversion to client component
-const directusLoader = ({ src, width, quality }: ImageLoaderProps) => {
-  return `https://cms.burbn.de/assets/${src}?width=${width}&quality=${quality || 75}`;
-};
+// The loader lives in lib/imageLoader.ts and is wired globally in
+// next.config.js, so this component no longer carries its own copy pointing
+// at cms.burbn.de — that URL would be fetched at view time and defeat the
+// static export.
 
 const DirectusImage = ({
   src,
@@ -16,12 +15,11 @@ const DirectusImage = ({
 }: {
   src: string;
   alt: string;
-} & Omit<React.ComponentProps<typeof Image>, "src" | "alt" | "loader">) => {
+} & Omit<React.ComponentProps<typeof Image>, "src" | "alt">) => {
   return (
     <Image
       src={src}
       alt={alt}
-      loader={directusLoader}
       fill
       sizes="(max-width: 768px) 70vw, 10vw (max-width: 1200px) 70vw, 40vw, 10vw"
       {...otherProps} // This spreads any additional props to the Image component.
