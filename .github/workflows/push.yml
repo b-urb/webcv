@@ -32,11 +32,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Same build the deploy workflow runs, minus the deploy: a static export
+      # fetches every page's content at build time, so this is the check that
+      # the site still builds against Directus -- and it needs the token as
+      # DIRECTUS_TOKEN, which is the name lib/directusClient.ts reads.
       - name: Build
-        run: npm run build
+        run: npm run build:cloudflare
         env:
-          CI_DIRECTUS_TOKEN: ${{ secrets.CI_DIRECTUS_TOKEN }}
-          CI_ISR_TOKEN: ${{ secrets.CI_ISR_TOKEN }}
+          DIRECTUS_TOKEN: ${{ secrets.CI_DIRECTUS_TOKEN }}
 
       - name: Linter
         run: npm run lint
