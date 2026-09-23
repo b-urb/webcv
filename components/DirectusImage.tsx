@@ -3,10 +3,12 @@
 import Image from "next/image";
 import React from "react";
 
-// The loader lives in lib/imageLoader.ts and is wired globally in
-// next.config.js, so this component no longer carries its own copy pointing
-// at cms.burbn.de — that URL would be fetched at view time and defeat the
-// static export.
+import directusImageLoader from "../lib/imageLoader";
+
+// The loader is the shared one in lib/imageLoader.ts, which serves the
+// build-time copies of Directus assets in the static export. It is passed
+// explicitly as well as wired globally in next.config.js, because tests and
+// anything else rendering outside Next never read that config.
 
 const DirectusImage = ({
   src,
@@ -15,11 +17,12 @@ const DirectusImage = ({
 }: {
   src: string;
   alt: string;
-} & Omit<React.ComponentProps<typeof Image>, "src" | "alt">) => {
+} & Omit<React.ComponentProps<typeof Image>, "src" | "alt" | "loader">) => {
   return (
     <Image
       src={src}
       alt={alt}
+      loader={directusImageLoader}
       fill
       sizes="(max-width: 768px) 70vw, 10vw (max-width: 1200px) 70vw, 40vw, 10vw"
       {...otherProps} // This spreads any additional props to the Image component.

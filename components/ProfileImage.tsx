@@ -3,7 +3,9 @@
 import Image from "next/image";
 import React from "react";
 
-// Loader comes from next.config.js (lib/imageLoader.ts); see DirectusImage.
+import directusImageLoader from "../lib/imageLoader";
+
+// Shared loader from lib/imageLoader.ts; see DirectusImage for why it is passed explicitly.
 
 const ProfileImage = () => {
   const imageUuid = "218814ac-b04e-4156-9be9-3770ff825a70";
@@ -12,6 +14,7 @@ const ProfileImage = () => {
       <Image
         src={imageUuid}
         alt="Profile Picture"
+        loader={directusImageLoader}
         sizes="(max-width: 769px) 30vw, (max-width: 1200px) 50vw"
         fill
         className="object-cover"
