@@ -20,10 +20,11 @@
     "check-types": "tsc --noEmit --pretty",
     "postbuild": "next-sitemap",
     "prepare": "husky",
-    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "preview": "npx wrangler dev",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
-    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+    "build:cloudflare": "node scripts/download-directus-assets.mjs && NEXT_PUBLIC_USE_LOCAL_ASSETS=true next build && next-sitemap"
   },
   "dependencies": {
     "@directus/sdk": "^21.0.0",

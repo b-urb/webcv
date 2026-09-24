@@ -1,12 +1,11 @@
 "use client";
 
-import type { ImageLoaderProps } from "next/image";
 import Image from "next/image";
 import React from "react";
 
-const directusLoader = ({ src, width, quality }: ImageLoaderProps) => {
-  return `https://cms.burbn.de/assets/${src}?width=${width}&quality=${quality || 76}`;
-};
+import directusImageLoader from "../lib/imageLoader";
+
+// Shared loader from lib/imageLoader.ts; see DirectusImage for why it is passed explicitly.
 
 const ProfileImage = () => {
   const imageUuid = "218814ac-b04e-4156-9be9-3770ff825a70";
@@ -15,7 +14,7 @@ const ProfileImage = () => {
       <Image
         src={imageUuid}
         alt="Profile Picture"
-        loader={directusLoader}
+        loader={directusImageLoader}
         sizes="(max-width: 769px) 30vw, (max-width: 1200px) 50vw"
         fill
         className="object-cover"

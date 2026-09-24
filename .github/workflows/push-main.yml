@@ -33,10 +33,9 @@ jobs:
         run: npm ci
 
       - name: Build
-        run: npm run build
+        run: npm run build:cloudflare
         env:
-          CI_DIRECTUS_TOKEN: ${{ secrets.CI_DIRECTUS_TOKEN }}
-          CI_ISR_TOKEN: ${{ secrets.CI_ISR_TOKEN }}
+          DIRECTUS_TOKEN: ${{ secrets.CI_DIRECTUS_TOKEN }}
 
       - name: Linter
         run: npm run lint
@@ -52,10 +51,7 @@ jobs:
         with:
           name: production-artifacts
           include-hidden-files: true
-          path: |
-            .next/standalone/
-            public/
-            .next/static/
+          path: out/
 
   release:
     needs: build

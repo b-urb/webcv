@@ -1,27 +1,13 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"main": ".open-next/worker.js",
 	"name": "webcv",
 	"compatibility_date": "2026-09-11",
-	"compatibility_flags": [
-		"nodejs_compat",
-		"global_fetch_strictly_public"
-	],
+	// Static assets only. The site is a Next.js export built to ./out, so
+	// there is no Worker script, no OpenNext runtime, no self-reference
+	// binding and no image binding -- and, more to the point, no request-time
+	// dependency on cms.burbn.de. burbn.de now stays up when the homelab does
+	// not, which is the reason for the change.
 	"assets": {
-		"directory": ".open-next/assets",
-		"binding": "ASSETS"
-	},
-	"services": [
-		{
-			// Self-reference service binding, the service name must match the worker name
-			// see https://opennext.js.org/cloudflare/caching
-			"binding": "WORKER_SELF_REFERENCE",
-			"service": "webcv"
-		}
-	],
-	"images": {
-		// Enable image optimization
-		// see https://opennext.js.org/cloudflare/howtos/image
-		"binding": "IMAGES"
+		"directory": "./out"
 	}
 }
