@@ -23,7 +23,7 @@ jobs:
     container: node:24
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       # An editor saving three fields in a row should produce one build, not
       # three. cancel-in-progress above turns the overlap into a single run.
