@@ -21,6 +21,10 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import fetchRetry from "../lib/fetchRetry.cjs";
+
+const { fetchWithRetry } = fetchRetry;
+
 const apiUrl = process.env.DIRECTUS_API_URL ?? "https://cms.burbn.de";
 const token = process.env.DIRECTUS_TOKEN;
 
@@ -43,7 +47,7 @@ const outDir = path.join(repoRoot, "public", "_assets");
 async function api(pathname, params = {}) {
   const url = new URL(`${apiUrl}${pathname}`);
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+  const res = await fetchWithRetry(url, { headers: { Authorization: `Bearer ${token}` } });
   if (!res.ok) {
     throw new Error(`${pathname} -> ${res.status} ${res.statusText}`);
   }
@@ -79,7 +83,7 @@ async function download(uuid, width) {
   url.searchParams.set("quality", "80");
   url.searchParams.set("format", "webp");
 
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+  const res = await fetchWithRetry(url, { headers: { Authorization: `Bearer ${token}` } });
   if (!res.ok) {
     // A missing asset should fail the build rather than ship a broken page:
     // the whole point is that nothing is fetched at view time, so a gap here
