@@ -21,8 +21,7 @@
     "postbuild": "next-sitemap",
     "prepare": "husky",
     "preview": "npx wrangler dev",
-    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-    "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
+    "deploy": "npm run build:cloudflare && wrangler deploy",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
     "build:cloudflare": "node scripts/download-directus-assets.mjs && NEXT_PUBLIC_USE_LOCAL_ASSETS=true next build && next-sitemap"
   },
@@ -47,8 +46,7 @@
     "react-dom": "^19.2.1",
     "react-markdown": "^10.0.0",
     "react-syntax-highlighter": "^16.0.0",
-    "tailwind-scrollbar": "^4.0.0",
-    "@opennextjs/cloudflare": "1.20.9"
+    "tailwind-scrollbar": "^4.0.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.0.0",
