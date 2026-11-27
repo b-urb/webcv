@@ -4,9 +4,10 @@ OpenTofu root for the durable Cloudflare resources behind this site. Added by
 backlog task S10 after the R2–R6 work built the Cloudflare estate with ad hoc
 API calls and `wrangler`, leaving nothing re-appliable.
 
-There is no D1 database here: this Worker binds only `ASSETS`,
-`WORKER_SELF_REFERENCE` and `IMAGES`, and renders every request live from
-Directus with no incremental cache (the R12 decision). The equivalent root in
+There is no D1 database here: the site is a static Next.js export (`./out`)
+deployed as Workers static assets with no Worker script and no bindings, so
+nothing at request time depends on Directus. Content changes reach the site by
+a rebuild, which a Directus Flow triggers. The equivalent root in
 `website-jb-v2` does own a D1 database, for that site's contact-form queue.
 
 ## Why this sits inside `deploy/`

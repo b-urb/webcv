@@ -8,6 +8,7 @@
 	// dependency on cms.burbn.de. burbn.de now stays up when the homelab does
 	// not, which is the reason for the change.
 	"assets": {
-		"directory": "./out"
+		"directory": "./out",
+		"not_found_handling": "404-page"
 	}
 }

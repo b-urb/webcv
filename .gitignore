@@ -15,6 +15,7 @@
 # next.js
 /.next/
 /out/
+/public/_assets/
 
 # production
 /build
@@ -42,8 +43,6 @@ next-env.d.ts
 /public/robots.txt
 /public/sitemap.xml
 
-# OpenNext
-.open-next
 
 # wrangler files
 .wrangler
