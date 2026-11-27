@@ -1,5 +1,6 @@
 import { createDirectus, graphql, rest, staticToken } from "@directus/sdk";
 
+import { fetchWithRetry } from "./fetchRetry.cjs";
 import type {
   Blogpost,
   Introtext,
@@ -11,14 +12,6 @@ import type {
   WorkRoles,
   WorkRolesTranslations,
 } from "./types";
-
-async function fetchWithRetry(input: RequestInfo | URL, init?: RequestInit) {
-  for (let attempt = 1; ; attempt++) {
-    const res = await fetch(input, init);
-    if ((res.status !== 503 && res.status !== 429) || attempt === 6) return res;
-    await new Promise((r) => setTimeout(r, 1000 * 2 ** attempt));
-  }
-}
 
 export const directus = createDirectus<MyCollections>("https://cms.burbn.de", {
   globals: { fetch: fetchWithRetry },
